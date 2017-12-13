@@ -1,0 +1,112 @@
+systemctl [OPTIONS...] {COMMAND} ... 查看服务状态命令
+
+# systemctl list-unit-files 列出所有可用单元
+UNIT FILE                                   STATE   
+proc-sys-fs-binfmt_misc.automount           static  
+dev-hugepages.mount                         static  
+dev-mqueue.mount                            static  
+...
+
+# systemctl list-units 列出所有运行的单元
+UNIT                                                                   LOAD   ACTIVE SUB       DESCRIPTION
+  proc-sys-fs-binfmt_misc.automount                                      loaded active running   Arbitrary Executable File Formats File System Automount Point
+  sys-devices-pci0000:00-0000:00:01.1-ata2-host1-target1:0:1-1:0:1:0-block-sr0.device loaded active plugged   QEMU_DVD-ROM
+  sys-devices-platform-serial8250-tty-ttyS1.device                       loaded active plugged   /sys/devices/platform/serial8250/tty/ttyS1
+  sys-devices-platform-serial8250-tty-ttyS2.device                       loaded active plugged   /sys/devices/platform/serial8250/tty/ttyS2
+  sys-devices-platform-serial8250-tty-ttyS3.device                       loaded active plugged   /sys/devices/platform/serial8250/tty/ttyS3
+
+# systemctl --failed 列出所有失败的单元
+  UNIT          LOAD   ACTIVE SUB    DESCRIPTION
+● kdump.service loaded failed failed Crash recovery kernel arming
+
+LOAD   = Reflects whether the unit definition was properly loaded.
+ACTIVE = The high-level unit activation state, i.e. generalization of SUB.
+SUB    = The low-level unit activation state, values depend on unit type.
+
+1 loaded units listed. Pass --all to see loaded but inactive units, too.
+To show all installed unit files use 'systemctl list-unit-files'.
+
+# systemctl is-enabled crond.service 检查某个单元或服务是否运行
+enabled
+
+# systemctl list-unit-files --type=service 只显示服务单元的运行
+UNIT FILE                                   STATE   
+auditd.service                              enabled 
+auth-rpcgss-module.service                  static  
+blk-availability.service                    disabled
+...
+
+# systemctl start httpd.service 启动服务（如果没有httpd只有服务，没有其他单元，可以不加service）
+# systemctl restart httpd.service 重启服务
+# systemctl stop httpd.service 停止服务
+# systemctl reload httpd.service 重载服务
+# systemctl status httpd.service 服务状态（可查看详细的启动信息）
+
+# systemctl is-active httpd.service 将服务设为可用状态
+# systemctl enable httpd.service  开启服务开机自启动
+# systemctl disable httpd.service 取消服务开机自启动
+
+# systemctl unmask httpd.service 取消服务显示为服务
+rm '/etc/systemd/system/httpd.service'
+# systemctl mask httpd.service 恢复服务显示为服务
+ln -s '/dev/null' '/etc/systemd/system/httpd.service'
+
+# systemctl kill httpd.service  杀死服务
+
+# systemctl show httpd 查看单元详情
+# systemctl show -p CPUShares httpd 显示单元的CPUShares配额
+# systemctl set-property httpd CPUShares=2000 修改CPUShares配额改为2000（配额后会自动在/etc/systemd/system/httpd.service.d/下创建配额文件）
+# systemctl list-dependencies httpd.service 获取服务的依赖性列表
+
+# systemctl get-default 查看当前运行级别
+multi-user.target
+# systemctl rescue 进入救援模式
+# systemctl emergency 进入紧急模式
+# systemctl isolate runlevel5.target 启动运行级别为3（多用户模式）
+# systemctl isolate graphical.target 启动运行级别为5（图形模式）
+# systemctl isolate runlevel3.target 启动运行级别为3（多用户模式）
+# systemctl isolate multiuser.target 启动运行级别为3（多用户模式）
+# systemctl set-default runlevel3.target 设置多用户模式为默认运行等级
+# systemctl set-default runlevel5.target 设置多图形模式为默认运行等级
+# systemctl reboot 重启系统
+# systemctl halt 停止系统
+# systemctl suspend 挂起系统
+# systemctl hibernate 休眠系统
+# systemctl hybrid-sleep 系统进入混合睡眠
+
+Runlevel 0 : 关闭系统
+Runlevel 1 : 救援？维护模式
+Runlevel 3 : 多用户，无图形系统
+Runlevel 4 : 多用户，无图形系统
+Runlevel 5 : 多用户，图形化系统
+Runlevel 6 : 关闭并重启机器
+
+# systemctl list-unit-files --type=mount 只显示挂载单元的运行
+UNIT FILE                     STATE   
+dev-hugepages.mount           static  
+tmp.mount                     disabled
+var-lib-nfs-rpc_pipefs.mount  static  
+...
+
+# systemctl start tmp.mount 
+# systemctl stop tmp.mount
+# systemctl restart tmp.mount
+# systemctl reload tmp.mount
+# systemctl status tmp.mount
+# systemctl is-active tmp.mount
+# systemctl enable tmp.mount
+# systemctl disable  tmp.mount
+# systemctl mask tmp.mount
+# systemctl unmask tmp.mount
+
+# systemctl list-unit-files --type=socket 只显示套接字单元的运行
+# systemctl start cups.socket
+# systemctl restart cups.socket
+# systemctl stop cups.socket
+# systemctl reload cups.socket
+# systemctl status cups.socket
+# systemctl is-active cups.socket
+# systemctl enable cups.socket
+# systemctl disable cups.socket
+# systemctl mask cups.socket
+# systemctl unmask cups.socket

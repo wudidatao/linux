@@ -1,0 +1,30 @@
+systemd-analyze 分析systemd启动过程
+
+# systemd-analyze 内核+initrd+服务启动总时间
+Startup finished in 1.698s (kernel) + 2.218s (initrd) + 13.538s (userspace) = 17.455s
+
+# systemd-analyze blame 各服务启动时间
+5.515s NetworkManager-wait-online.service
+3.416s lvm2-monitor.service
+2.878s kdump.service
+1.597s lvm2-pvscan@202:2.service
+1.283s docker.service
+...
+
+# systemd-analyze critical-chain  服务的启动链,启动链中用单元作为单位，Systemctl接受服务（.service），挂载点（.mount），套接口（.socket）和设备（.device）作为单元。
+multi-user.target @11.405s
+└─tuned.service @10.659s +745ms
+  └─network.target @10.652s
+    └─network.service @10.093s +558ms
+      └─NetworkManager-wait-online.service @4.576s +5.515s
+        └─NetworkManager.service @4.385s +164ms
+...
+
+# systemd-analyze critical-chain httpd.service 查看指定服务的启动链
+httpd.service +63ms
+└─network.target @10.652s
+  └─network.service @10.093s +558ms
+    └─NetworkManager-wait-online.service @4.576s +5.515s
+      └─NetworkManager.service @4.385s +164ms
+        └─dbus.service @4.320s
+...
